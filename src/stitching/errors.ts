@@ -18,7 +18,7 @@ if (
   ERROR_SYMBOL = '@@__subSchemaErrors';
 }
 
-export function annotateWithChildrenErrors(object: any, childrenErrors: ReadonlyArray<GraphQLFormattedError>): any {
+export function annotateWithChildrenErrors(object: any, childrenErrors: ReadonlyArray<GraphQLError>): any {
   if (!childrenErrors || childrenErrors.length === 0) {
     // Nothing to see here, move along
     return object;
@@ -35,6 +35,7 @@ export function annotateWithChildrenErrors(object: any, childrenErrors: Readonly
       const current = byIndex[index] || [];
       current.push({
         ...error,
+        originalError: error.originalError,
         path: error.path.slice(1)
       });
       byIndex[index] = current;
@@ -47,7 +48,8 @@ export function annotateWithChildrenErrors(object: any, childrenErrors: Readonly
     ...object,
     [ERROR_SYMBOL]: childrenErrors.map(error => ({
       ...error,
-      ...(error.path ? { path: error.path.slice(1) } : {})
+      ...(error.path ? { path: error.path.slice(1) } : {}),
+      originalError: error.originalError,
     }))
   };
 }
@@ -114,7 +116,7 @@ export function checkResultAndHandleErrors(
 
   let resultObject = result.data[responseKey];
   if (result.errors) {
-    resultObject = annotateWithChildrenErrors(resultObject, result.errors as ReadonlyArray<GraphQLFormattedError>);
+    resultObject = annotateWithChildrenErrors(resultObject, result.errors as ReadonlyArray<GraphQLError>);
   }
   return resultObject;
 }
