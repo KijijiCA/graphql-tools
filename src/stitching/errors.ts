@@ -2,7 +2,6 @@ import {
   GraphQLResolveInfo,
   responsePathAsArray,
   ExecutionResult,
-  GraphQLFormattedError,
   GraphQLError,
 } from 'graphql';
 import { locatedError } from 'graphql/error';
@@ -64,10 +63,10 @@ export function getErrorsFromParent(
     }
   | {
       kind: 'CHILDREN';
-      errors?: Array<GraphQLFormattedError>;
+      errors?: Array<GraphQLError>;
     } {
   const errors = (object && object[ERROR_SYMBOL]) || [];
-  const childrenErrors: Array<GraphQLFormattedError> = [];
+  const childrenErrors: Array<GraphQLError> = [];
 
   for (const error of errors) {
     if (!error.path || (error.path.length === 1 && error.path[0] === fieldName)) {
